@@ -1,0 +1,22 @@
+{
+  "name": "float-js",
+  "version": "0.1.0",
+  "description": "A tiny decelerated layer offsetting engine that reacts to the mouse position or device orientation.",
+  "main": "./float.js",
+  "scripts": {
+    "webpack": "webpack"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:markoradak/float-js.git"
+  },
+  "author": "markoradak <mail@markoradak.com>",
+  "license": "MIT",
+  "homepage": "https://github.com/markoradak/float-js",
+  "devDependencies": {
+    "babel-core": "^6.24.0",
+    "babel-loader": "^6.4.1",
+    "babel-preset-env": "^1.2.2",
+    "webpack": "^2.3.2"
+  }
+}
