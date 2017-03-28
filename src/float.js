@@ -1,4 +1,4 @@
-/**
+/*!
  * Float JS
  * --------
  * @author Marko Radak <mail@markoradak.com>
