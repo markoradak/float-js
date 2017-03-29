@@ -32,7 +32,7 @@ function init( options ) {
   var options = Object.assign({
     'deceleration': 0.5,
     'strength': 0.5,
-    'precision':  1,
+    'precision':  2,
     'direction': -1
   }, options)
 
@@ -56,6 +56,12 @@ function init( options ) {
     })
   }
 
+  // Check if device motion API exists.
+  var acc
+  window.addEventListener( 'devicemotion', (e) => {
+    e.accelerationIncludingGravity.x == nul ? acc = true : acc = false
+  })
+
   // Create float function.
   function float() {
 
@@ -65,11 +71,12 @@ function init( options ) {
       inputY = e.clientY
     })
 
-    // Update input on device motion.
-    window.addEventListener( 'devicemotion', (e) => {
-      inputX = e.accelerationIncludingGravity.x * 100
-      inputY = e.accelerationIncludingGravity.y * 100 * ( -1 )
-    })
+    // Update input on device motion if API exists.
+    if ( acc )
+      window.addEventListener( 'devicemotion', (e) => {
+        inputX = e.accelerationIncludingGravity.x * 100
+        inputY = e.accelerationIncludingGravity.y * 100 * ( -1 )
+      })
 
     // Update window width / height on resize.
     window.addEventListener( 'resize', () => {
