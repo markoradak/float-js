@@ -59,7 +59,7 @@ function init( options ) {
   // Check if device motion API exists.
   var acc
   window.addEventListener( 'devicemotion', (e) => {
-    e.accelerationIncludingGravity.x == null ? acc = true : acc = false
+    e.accelerationIncludingGravity.x == null ? acc = false : acc = true
   })
 
   // Create float function.
