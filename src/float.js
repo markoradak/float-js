@@ -7,89 +7,98 @@
  *         position or device orientation.
  */
 
-function init( options ) {
+import raf from 'raf';
 
-  // Define animation frame.
-  const requestAnimationFrame = window.requestAnimationFrame       ||
-                                window.webkitRequestAnimationFrame ||
-                                window.mozRequestAnimationFrame    ||
-                                window.oRequestAnimationFrame
+class floatJS {
+  constructor({
+    attribute = 'data-float',
+    deceleration = 0.5,
+    strength = 0.5,
+    precision = 2,
+    direction = -1,
+  }) {
+      // Set config.
+    this.attribute = attribute;
+    this.deceleration = deceleration;
+    this.strength = strength;
+    this.precision = precision;
+    this.direction = direction;
 
-  // Get every element with [data-float] selector.
-  const floatElements = document.querySelectorAll('[data-float]')
+    // Get every element with defined attribute.
+    this.floatElements = document.querySelectorAll(`[${this.attribute}]`);
 
-  // Calculate window width and height initially.
-  var vw = window.innerWidth,
-      vh = window.innerHeight
+    // Calculate window width and height initially.
+    this.vw = window.innerWidth;
+    this.vh = window.innerHeight;
 
-  // Assign default mouse position / accelerometer values.
-  var inputX = vw / 2,
-      inputY = vh / 2,
-      dX = 0,
-      dY = 0
+    // Assign default mouse position / accelerometer values.
+    this.inputX = this.vw / 2;
+    this.inputY = this.vh / 2;
+    this.dX = 0;
+    this.dY = 0;
 
-  // Create default options.
-  var options = Object.assign({
-    'deceleration': 0.5,
-    'strength': 0.5,
-    'precision':  2,
-    'direction': -1
-  }, options)
+    /**
+     * Normalize Deceleration
+     * ----------------------
+     * @desc Deceleration should never be lower than 1.
+     *       Additional math is performed so that a
+     *       variable would go between 0 - 1 range.
+     */
+    this.deceleration = Math.max(1, (this.deceleration * 100) / 6);
 
-  /**
-   * Normalize Deceleration
-   * ----------------------
-   * @desc Deceleration should never be lower than 1.
-   *       Additional math is performed so that a
-   *       variable would go between 0 - 1 range.
-   */
-  options['deceleration'] = Math.max( 1, options.deceleration * 100 / 6 )
+    // Create layer positions array.
+    this.positions = [];
 
-  // Create layer positions array.
-  var positions = []
+    // Push initial position values for every float element.
+    this.floatElements.forEach(() => {
+      this.positions.push({
+        xPos: 0,
+        yPos: 0,
+      });
+    });
 
-  // Push initial position values for every float element.
-  for (var i = 0; i < floatElements.length; i++) {
-    positions.push({
-      'xPos': 0,
-      'yPos': 0
-    })
+    // Check if device motion API exists.
+    this.acc = false;
+    window.addEventListener('devicemotion', (e) => {
+      if (e.accelerationIncludingGravity.x == null) {
+        this.acc = false;
+      } else {
+        this.acc = true;
+      }
+    });
+
+    // Kickoff on DOM loaded.
+    document.addEventListener('DOMContentLoaded', () => {
+      this.float();
+    }, false);
   }
 
-  // Check if device motion API exists.
-  var acc
-  window.addEventListener( 'devicemotion', (e) => {
-    e.accelerationIncludingGravity.x == null ? acc = false : acc = true
-  })
-
   // Create float function.
-  function float() {
-
+  float() {
     // Update input on mouse move.
-    window.addEventListener( 'mousemove', (e) => {
-      inputX = e.clientX
-      inputY = e.clientY
-    })
+    window.addEventListener('mousemove', (e) => {
+      this.inputX = e.clientX;
+      this.inputY = e.clientY;
+    });
 
     // Update input on device motion if API exists.
-    if ( acc )
-      window.addEventListener( 'devicemotion', (e) => {
-        inputX = e.accelerationIncludingGravity.x * 100
-        inputY = e.accelerationIncludingGravity.y * 100 * ( -1 )
-      })
+    if (this.acc) {
+      window.addEventListener('devicemotion', (e) => {
+        this.inputX = e.accelerationIncludingGravity.x * 100;
+        this.inputY = e.accelerationIncludingGravity.y * 100 * (-1);
+      });
+    }
 
     // Update window width / height on resize.
-    window.addEventListener( 'resize', () => {
-      vw = window.innerWidth
-      vh = window.innerHeight
-    })
+    window.addEventListener('resize', () => {
+      this.vw = window.innerWidth;
+      this.vh = window.innerHeight;
+    });
 
     // Itterate through float elements.
-    for (var i = 0; i < floatElements.length; i++) {
-
-      // Set base variables.
-      var element  = floatElements[i],
-          strength = element.getAttribute('data-float')
+    this.floatElements.forEach((element, i) => {
+      // Set strength.
+      let strength = element.getAttribute(this.attribute);
 
       /**
        * Normalize Strength
@@ -99,7 +108,7 @@ function init( options ) {
        *       Additional math is performed so that a
        *       variable would go between 0 - 1 range.
        */
-      strength = strength * (options.strength / 2.5)
+      strength *= (this.strength / 2.5);
 
       /**
        * Calculate Layer Positions
@@ -110,8 +119,14 @@ function init( options ) {
        *       finally substracted with it's
        *       previous position.
        */
-      dX = ( inputX - vw/2 ) * options.direction * strength - positions[i].xPos
-      dY = ( inputY - vh/2 ) * options.direction * strength - positions[i].yPos
+      this.dX =
+        ((this.inputX - (this.vw / 2))
+        * (this.direction * strength))
+        - this.positions[i].xPos;
+      this.dY =
+        ((this.inputY - (this.vh / 2))
+        * (this.direction * strength))
+        - this.positions[i].yPos;
 
       /**
        * Decelerate
@@ -120,27 +135,19 @@ function init( options ) {
        *       newly calculated position divided
        *       by deceleration rate.
        */
-      positions[i].xPos += ( dX / options.deceleration )
-      positions[i].yPos += ( dY / options.deceleration )
+      this.positions[i].xPos += (this.dX / this.deceleration);
+      this.positions[i].yPos += (this.dY / this.deceleration);
 
       // Apply final transformations with precision rate.
-      element.style.transform = 'translate3d(' +
-        positions[i].xPos.toFixed(options.precision) + 'px, '  +
-        positions[i].yPos.toFixed(options.precision) + 'px, 0)'
-
-    }
+      element.style.transform = `translate3d(${
+        this.positions[i].xPos.toFixed(this.precision)}px, ${
+        this.positions[i].yPos.toFixed(this.precision)}px, 0)`;
+    });
 
     // Request animation frame.
-    requestAnimationFrame( float )
-
+    raf(this.float.bind(this));
   }
-
-  // Kickoff.
-  float()
-
 }
 
 // Export module.
-module.exports = {
-  init: init
-}
+module.exports = floatJS;
