@@ -10,6 +10,9 @@
     "type": "git",
     "url": "git@github.com:markoradak/float-js.git"
   },
+  "dependencies": {
+    "raf": "^3.4.0"
+  },
   "author": "markoradak <mail@markoradak.com>",
   "license": "MIT",
   "homepage": "https://github.com/markoradak/float-js"
