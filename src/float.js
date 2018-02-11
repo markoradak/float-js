@@ -7,7 +7,7 @@
  *         position or device orientation.
  */
 
-import raf from 'raf';
+import { raf } from 'raf';
 
 class floatJS {
   constructor({
