@@ -7,9 +7,9 @@
  *         position or device orientation.
  */
 
-import { raf } from 'raf';
+const raf = require('raf');
 
-class floatJS {
+class FloatJS {
   constructor({
     attribute = 'data-float',
     deceleration = 0.5,
@@ -150,4 +150,4 @@ class floatJS {
 }
 
 // Export module.
-module.exports = floatJS;
+module.exports = FloatJS;
