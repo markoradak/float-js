@@ -1,6 +1,6 @@
 {
   "name": "float-js",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "A tiny decelerated layer offsetting engine that reacts to the mouse position or device orientation.",
   "main": "./src/float.js",
   "scripts": {
