@@ -67,10 +67,11 @@ class FloatJS {
       }
     });
 
-    // Kickoff on DOM loaded.
-    document.addEventListener('DOMContentLoaded', () => {
+    // Kickoff if DOM loaded.
+    if (document.readyState === "complete"
+    || document.readyState === "loaded") {
       this.float();
-    }, false);
+    }
   }
 
   // Create float function.
